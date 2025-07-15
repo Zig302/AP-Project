@@ -19,113 +19,145 @@ public class RequestParser {
      * @throws IOException if an I/O error occurs
      */
     public static RequestInfo parseRequest(BufferedReader reader) throws IOException {
-        String firstLine = reader.readLine(); // Read the first line (request line)
+        String requestLine = reader.readLine(); // Read the first line (request line)
 
-        if (firstLine == null) {
+        if (requestLine == null) {
             throw new IOException();
         }
 
-        String[] firstLineParts = firstLine.split(" "); // Split by spaces
-        String requestBody = "";
-        // Extract HTTP command, URI, and protocol version
-        String httpCommand = firstLineParts[0];
-        String uri = firstLineParts[1];
+        String[] requestParts = requestLine.split(" "); // Split by spaces
+        // Extract HTTP method, URI, and protocol version
+        String httpMethod = requestParts[0];
+        String requestUri = requestParts[1];
 
-        ArrayList<String> address = new ArrayList<>();
-        for (String s : uri.split("/")) {
-            if (!s.isEmpty()) {
-                if (s.contains("?")) {
-                    address.add(s.split("\\?")[0]);
-                } else {
-                    address.add(s);
-                }
-            }
+        // Parse query parameters first (if any)
+        Map<String, String> queryParams = extractQueryParameters(requestUri);
+
+        // Extract URI segments
+        String[] uriSegments = extractUriSegments(requestUri);
+
+        // Parse HTTP headers
+        Map<String, String> httpHeaders = new HashMap<>();
+        int contentLength = parseHeaders(reader, httpHeaders, queryParams);
+
+        // Process request body
+        String bodyContent = "";
+        if (contentLength > 0) {
+            bodyContent = processRequestBody(reader, contentLength);
         }
-        uri = uri.trim();
 
-        // Create an array to store the segments
-        String[] segments = new String[address.size()];
-        segments = address.toArray(segments);
+        return new RequestInfo(httpMethod, requestUri.trim(), uriSegments, queryParams, bodyContent.getBytes());
+    }
 
-        // Parse query parameters (if any)
-        Map<String, String> parameters = new HashMap<>();
-
+    private static Map<String, String> extractQueryParameters(String uri) {
+        Map<String, String> queryParams = new HashMap<>();
+        
         if (uri.contains("?")) {
-            String[] uriArray = uri.split("\\?");
-            String[] paramPairs = uriArray[1].split("&");
-            for (String p : paramPairs) {
-                String[] values = p.split("=");
-                parameters.put(values[0], values[1]);
-            }
-        }
-
-        String line;
-        Map<String, String> header = new HashMap<>();
-        int length = 0;
-        while (!(line = reader.readLine()).isEmpty()) {
-            String[] headers = line.split(": ");
-            if (headers.length == 2) {
-                header.put(headers[0], headers[1]);
-                if (headers[0].equalsIgnoreCase("Content-Length")) {
-                    length = Integer.parseInt(headers[1]);
+            String[] uriParts = uri.split("\\?");
+            String[] parameterPairs = uriParts[1].split("&");
+            for (String paramPair : parameterPairs) {
+                String[] keyValue = paramPair.split("=");
+                if (keyValue.length == 2) {
+                    queryParams.put(keyValue[0], keyValue[1]);
                 }
             }
         }
+        
+        return queryParams;
+    }
 
-        StringBuilder builder = new StringBuilder();
-        if (length > 0) {
-            while (!(line = reader.readLine()).isEmpty()) {
-                if (line.contains("filename=")) {
-                    parameters.put("filename", line.split("filename=")[1]);
+    private static String[] extractUriSegments(String uri) {
+        ArrayList<String> pathSegments = new ArrayList<>();
+        
+        for (String segment : uri.split("/")) {
+            if (!segment.isEmpty()) {
+                if (segment.contains("?")) {
+                    pathSegments.add(segment.split("\\?")[0]);
+                } else {
+                    pathSegments.add(segment);
                 }
             }
-            // Read the content
-            char[] body = new char[length];
-            reader.read(body, 0, length);
-            requestBody = new String(body);
-            requestBody = requestBody.split("-")[0].trim();
+        }
+        
+        return pathSegments.toArray(new String[0]);
+    }
 
-            while (reader.ready()) {
-                line = reader.readLine();
+    private static int parseHeaders(BufferedReader reader, Map<String, String> headers, Map<String, String> params) throws IOException {
+        String currentLine;
+        int contentLength = 0;
+        
+        while (!(currentLine = reader.readLine()).isEmpty()) {
+            String[] headerParts = currentLine.split(": ");
+            if (headerParts.length == 2) {
+                headers.put(headerParts[0], headerParts[1]);
+                if (headerParts[0].equalsIgnoreCase("Content-Length")) {
+                    contentLength = Integer.parseInt(headerParts[1]);
+                }
             }
         }
-        return new RequestInfo(httpCommand, uri, segments, parameters, requestBody.getBytes());
+        
+        return contentLength;
+    }
+
+    private static String processRequestBody(BufferedReader reader, int contentLength) throws IOException {
+        String currentLine;
+        Map<String, String> tempParams = new HashMap<>();
+        
+        // Process multipart form data headers
+        while (!(currentLine = reader.readLine()).isEmpty()) {
+            if (currentLine.contains("filename=")) {
+                tempParams.put("filename", currentLine.split("filename=")[1]);
+            }
+        }
+        
+        // Read the actual content
+        char[] contentBuffer = new char[contentLength];
+        reader.read(contentBuffer, 0, contentLength);
+        String bodyContent = new String(contentBuffer);
+        bodyContent = bodyContent.split("-")[0].trim();
+
+        // Clear remaining buffer
+        while (reader.ready()) {
+            reader.readLine();
+        }
+        
+        return bodyContent;
     }
 
     /**
      * The RequestInfo class represents the parsed information of an HTTP request.
      */
     public static class RequestInfo {
-        private final String httpCommand;
-        private final String uri;
-        private final String[] uriSegments;
-        private final Map<String, String> parameters;
-        private final byte[] content;
+        private final String httpMethod;
+        private final String requestUri;
+        private final String[] pathSegments;
+        private final Map<String, String> queryParameters;
+        private final byte[] bodyContent;
 
         /**
          * Constructs a RequestInfo object with the specified parameters.
          *
-         * @param httpCommand the HTTP command (e.g., GET, POST)
-         * @param uri the URI of the request
-         * @param uriSegments the segments of the URI
-         * @param parameters the query parameters of the request
-         * @param content the content of the request
+         * @param httpMethod the HTTP method (e.g., GET, POST)
+         * @param requestUri the URI of the request
+         * @param pathSegments the segments of the URI
+         * @param queryParameters the query parameters of the request
+         * @param bodyContent the content of the request
          */
-        public RequestInfo(String httpCommand, String uri, String[] uriSegments, Map<String, String> parameters, byte[] content) {
-            this.httpCommand = httpCommand;
-            this.uri = uri;
-            this.uriSegments = uriSegments;
-            this.parameters = parameters;
-            this.content = content;
+        public RequestInfo(String httpMethod, String requestUri, String[] pathSegments, Map<String, String> queryParameters, byte[] bodyContent) {
+            this.httpMethod = httpMethod;
+            this.requestUri = requestUri;
+            this.pathSegments = pathSegments;
+            this.queryParameters = queryParameters;
+            this.bodyContent = bodyContent;
         }
 
         /**
-         * Returns the HTTP command of the request.
+         * Returns the HTTP method of the request.
          *
-         * @return the HTTP command
+         * @return the HTTP method
          */
         public String getHttpCommand() {
-            return httpCommand;
+            return httpMethod;
         }
 
         /**
@@ -134,7 +166,7 @@ public class RequestParser {
          * @return the URI
          */
         public String getUri() {
-            return uri;
+            return requestUri;
         }
 
         /**
@@ -143,7 +175,7 @@ public class RequestParser {
          * @return the URI segments
          */
         public String[] getUriSegments() {
-            return uriSegments;
+            return pathSegments;
         }
 
         /**
@@ -152,7 +184,7 @@ public class RequestParser {
          * @return the query parameters
          */
         public Map<String, String> getParameters() {
-            return parameters;
+            return queryParameters;
         }
 
         /**
@@ -161,7 +193,7 @@ public class RequestParser {
          * @return the content
          */
         public byte[] getContent() {
-            return content;
+            return bodyContent;
         }
     }
 }
