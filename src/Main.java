@@ -3,11 +3,13 @@ import server.MyHTTPServer;
 import servlets.ConfLoader;
 import servlets.HtmlLoader;
 import servlets.TopicDisplayer;
+import servlets.GraphRefresher;
 
 public class Main {
     public static void main(String[] args) throws Exception{
         HTTPServer server=new MyHTTPServer(8080,5);
         server.addServlet("GET", "/publish", new TopicDisplayer());
+        server.addServlet("GET", "/refresh", new GraphRefresher());
         server.addServlet("POST", "/upload", new ConfLoader());
         server.addServlet("GET", "/app/", new HtmlLoader("html_files"));
         server.start();
