@@ -27,6 +27,11 @@ public class TopicManagerSingleton {
             return topics.computeIfAbsent(name, k -> new Topic(name));
         }
 
+        public boolean topicExists(String name){
+            // Check if a topic exists without creating it
+            return topics.containsKey(name);
+        }
+
         public Collection<Topic> getTopics() {
             // Return collection of topics
             return topics.values();

@@ -56,7 +56,78 @@
             background-color: black;
             margin: 20px 0;
         }
+        .error-message {
+            color: #d32f2f;
+            font-size: 12px;
+            margin-top: 5px;
+            padding: 5px;
+            background-color: #ffebee;
+            border: 1px solid #ffcdd2;
+            border-radius: 4px;
+            display: none;
+        }
     </style>
+    <script>
+        function showTopicError(message) {
+            var errorDiv = document.getElementById('topicError');
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+        }
+        
+        function hideTopicError() {
+            var errorDiv = document.getElementById('topicError');
+            errorDiv.style.display = 'none';
+        }
+        
+        function showMessageError(message) {
+            var errorDiv = document.getElementById('messageError');
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+        }
+        
+        function hideMessageError() {
+            var errorDiv = document.getElementById('messageError');
+            errorDiv.style.display = 'none';
+        }
+        
+        // Clear errors when user starts typing
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('topicField').addEventListener('input', hideTopicError);
+            document.getElementById('messageField').addEventListener('input', hideMessageError);
+        });
+        
+        function validateAndSubmit(form) {
+            var topicName = form.topic.value.trim();
+            var message = form.message.value.trim();
+            
+            // Validate both topic and message together
+            return validateTopicAndMessage(topicName, message);
+        }
+        
+        function validateTopicAndMessage(topicName, message) {
+            var xhr = new XMLHttpRequest();
+            xhr.open('GET', 'http://localhost:8080/validate-topic?topic=' + encodeURIComponent(topicName) + '&message=' + encodeURIComponent(message), false);
+            
+            try {
+                xhr.send();
+                if (xhr.status === 404) {
+                    showTopicError('Topic "' + topicName + '" does not exist');
+                    hideMessageError();
+                    return false;
+                } else if (xhr.status === 400) {
+                    hideTopicError();
+                    showMessageError('Message must contain only numbers');
+                    return false;
+                }
+                hideTopicError();
+                hideMessageError();
+                return true;
+            } catch (e) {
+                // If validation fails, allow form submission (fallback to server-side validation)
+                return true;
+            }
+        }
+    </script>
 </head>
 <body>
 <h3>Deploy Configuration</h3>
@@ -71,14 +142,16 @@
 <div class="divider"></div>
 
 <h3>Publish Message</h3>
-<form method="GET" action="http://localhost:8080/publish" target="tableFrame">
+<form method="GET" action="http://localhost:8080/publish" target="tableFrame" onsubmit="return validateAndSubmit(this);">
     <div class="form-group">
         <label for="topicField">Topic:</label>
         <input type="text" id="topicField" name="topic" required />
+        <div id="topicError" class="error-message"></div>
     </div>
     <div class="form-group">
         <label for="messageField">Message:</label>
         <input type="text" id="messageField" name="message" required />
+        <div id="messageError" class="error-message"></div>
     </div>
     <button type="submit">Publish</button>
 </form>
