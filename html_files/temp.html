@@ -6,24 +6,41 @@
     <style>
         body {
             font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 15px;
+            background-color: #f8f9fa;
+            height: 100vh;
+            box-sizing: border-box;
+        }
+        .placeholder-container {
+            background-color: white;
+            border: 1px solid #dee2e6;
+            border-radius: 6px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            padding: 20px;
+            height: calc(100% - 40px);
             display: flex;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
-            height: 100vh;
-            margin: 0;
-            background-color: #f5f5f5;
         }
         .placeholder {
             text-align: center;
-            color: #666;
-            font-size: 18px;
+            color: #6c757d;
+            font-size: 16px;
+        }
+        .placeholder h3 {
+            color: #495057;
+            margin-bottom: 10px;
         }
     </style>
 </head>
 <body>
-    <div class="placeholder">
-        <h3>No content to display</h3>
-        <p>This area will show content after user actions</p>
+    <div class="placeholder-container">
+        <div class="placeholder">
+            <h3>No content to display</h3>
+            <p>This area will show content after user actions</p>
+        </div>
     </div>
 </body>
 </html>

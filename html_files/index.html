@@ -5,13 +5,24 @@
     <title>Dashboard</title>
     <style>
         /* Fill the viewport */
-        html, body { height: 100%; margin: 0; }
+        html, body { height: 100%; margin: 0; background-color: #f0f0f0; }
 
-        /* Three fixed columns: 380px | flex-1 | 240px  */
+        /* Three fixed columns: 380px | flex-1 | 350px (increased width for table) */
         .layout {
             display: grid;
-            grid-template-columns: 380px 1fr 240px;
+            grid-template-columns: 380px 1fr 350px;
             height: 100%;
+            gap: 10px;
+            padding: 10px;
+        }
+
+        /* Frame styling for each column */
+        .frame {
+            border: 2px solid #ccc;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            background-color: white;
+            overflow: hidden;
         }
 
         /* Every iframe stretches to fill its cell */
@@ -25,13 +36,19 @@
 <body>
 <div class="layout">
     <!-- Left column: forms -->
-    <iframe src="form.html"      name="formFrame"></iframe>
+    <div class="frame">
+        <iframe src="form.html" name="formFrame"></iframe>
+    </div>
 
     <!-- Centre column: graph (placeholder until /upload) -->
-    <iframe src="tempGraph.html" name="graphFrame"></iframe>
+    <div class="frame">
+        <iframe src="tempGraph.html" name="graphFrame"></iframe>
+    </div>
 
     <!-- Right column: topic table (placeholder until /publish) -->
-    <iframe src="temp.html"      name="tableFrame"></iframe>
+    <div class="frame">
+        <iframe src="temp.html" name="tableFrame"></iframe>
+    </div>
 </div>
 </body>
 </html>

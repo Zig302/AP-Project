@@ -53,8 +53,17 @@ public class GenericConfig implements Config {
                 ParallelAgent agent = new ParallelAgent((Agent) agentInstance); // Wrap the agent instance in a ParallelAgent
                 agents.add(agent); // Add the created agent to the list of agents
 
-            } catch (Exception e) { // Handle any exceptions that occur during the creation of the agent
-                throw new RuntimeException("Error creating agent: " + agentClassName, e);
+            } catch (ClassNotFoundException e) {
+                throw new RuntimeException("Agent class not found: " + agentClassName + ". Make sure the class exists and is in the classpath.", e);
+            } catch (java.lang.reflect.InvocationTargetException e) {
+                Throwable cause = e.getCause();
+                if (cause != null) {
+                    throw new RuntimeException("Error in agent constructor for: " + agentClassName + ". Agent threw exception: " + cause.getClass().getSimpleName() + " - " + cause.getMessage(), cause);
+                } else {
+                    throw new RuntimeException("Error invoking constructor for agent: " + agentClassName, e);
+                }
+            } catch (Exception e) {
+                throw new RuntimeException("Unexpected error creating agent: " + agentClassName + " - " + e.getMessage(), e);
             }
         }
     }

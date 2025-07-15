@@ -62,6 +62,16 @@ public class ConfLoader implements Servlet {
             Graph graph = new Graph();
             graph.createFromTopics();
             
+            // Check for cycles in the graph
+            if (graph.hasCycles()) {
+                // If cycles are detected, clean up and send error response
+                currentConfig.close();
+                currentConfig = null;
+                TopicManagerSingleton.get().clear();
+                sendErrorResponse(toClient, "Configuration rejected: The graph contains cycles. Cyclic dependencies between agents and topics are not allowed.\n");
+                return;
+            }
+            
             // Generate HTML representation
             List<String> htmlLines = HtmlGraphWriter.getGraphHTML(graph);
             StringBuilder htmlContent = new StringBuilder();
@@ -88,7 +98,9 @@ public class ConfLoader implements Servlet {
     }
     
     private void sendErrorResponse(OutputStream toClient, String message) throws IOException {
-        String html = "<html><body><h1>Configuration Error</h1><p>" + message + "</p></body></html>";
+        // Convert newlines to HTML breaks for better display
+        String htmlMessage = message.replace("\n", "<br>");
+        String html = "<html><body><h1>Configuration Error</h1><div style='background-color: #ffebee; padding: 10px; border: 1px solid #f44336; border-radius: 5px;'><p>" + htmlMessage + "</p></div></body></html>";
         String response = "HTTP/1.1 400 Bad Request\r\n" +
                          "Content-Type: text/html\r\n" +
                          "Content-Length: " + html.length() + "\r\n" +

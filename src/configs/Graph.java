@@ -20,7 +20,6 @@ public class Graph extends ArrayList<Node>{
 
     // Creates the graph from the topics managed by the topic singleton
     public void createFromTopics(){
-        this.clear(); // Clear existing nodes to rebuild the graph
         TopicManager topicManager = TopicManagerSingleton.get(); // Get the singleton instance of TopicManager
 
         for (Topic topic : topicManager.getTopics()) {
@@ -60,19 +59,6 @@ public class Graph extends ArrayList<Node>{
                 System.out.print(edge.getName() + " ");
             }
             System.out.println();
-        }
-    }
-
-    // Updates the message values in topic nodes with the current values from topics
-    public void updateNodeValues(){
-        TopicManager topicManager = TopicManagerSingleton.get();
-        
-        for (Node node : this) {
-            if (node.getName().startsWith("T")) { // If it's a topic node
-                String topicName = node.getName().substring(1); // Remove "T" prefix
-                Topic topic = topicManager.getTopic(topicName);
-                node.setMessage(topic.getMsg()); // Update the node's message with the topic's current message
-            }
         }
     }
 }
