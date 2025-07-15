@@ -107,15 +107,18 @@ public class RequestParser {
             if (actuallyRead > 0) {
                 bodyBuilder.append(buf, 0, actuallyRead);
             }
+            reader.readLine();
         }
 
         // Keep consuming lines until we hit the first blank line or
         // the stream is exhausted (reader.ready() == false).
-        while (reader.ready()) {
-            currentLine = reader.readLine();
-            if (currentLine == null || currentLine.isEmpty())
-                break;                                // blank line means body finished
-            bodyBuilder.append(currentLine).append('\n');
+        else {
+            while (reader.ready()) {
+                currentLine = reader.readLine();
+                if (currentLine == null || currentLine.isEmpty())
+                    break;                                // blank line means body finished
+                bodyBuilder.append(currentLine).append('\n');
+            }
         }
         // Convert the body content to bytes
         byte[] content = bodyBuilder.toString().getBytes(StandardCharsets.UTF_8);
