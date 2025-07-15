@@ -3,18 +3,6 @@ out/
 !**/src/main/**/out/
 !**/src/test/**/out/
 
-### Eclipse ###
-.apt_generated
-.classpath
-.factorypath
-.project
-.settings
-.springBeans
-.sts4-cache
-bin/
-!**/src/main/**/bin/
-!**/src/test/**/bin/
-
 ### NetBeans ###
 /nbproject/private/
 /nbbuild/
@@ -22,8 +10,15 @@ bin/
 /nbdist/
 /.nb-gradle/
 
-### VS Code ###
+# Compiled class files
+*.class
+
+# Log files
+*.log
+
+# IDE files
+.idea/
 .vscode/
 
-### Mac OS ###
-.DS_Store
+# Project specific
+uploaded_configs/
