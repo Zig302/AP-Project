@@ -1,10 +1,37 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Title</title>
+    <meta charset="UTF-8" />
+    <title>Dashboard</title>
+    <style>
+        /* Fill the viewport */
+        html, body { height: 100%; margin: 0; }
+
+        /* Three fixed columns: 380px | flex-1 | 240px  */
+        .layout {
+            display: grid;
+            grid-template-columns: 380px 1fr 240px;
+            height: 100%;
+        }
+
+        /* Every iframe stretches to fill its cell */
+        iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+    </style>
 </head>
 <body>
+<div class="layout">
+    <!-- Left column: forms -->
+    <iframe src="form.html"      name="formFrame"></iframe>
 
+    <!-- Centre column: graph (placeholder until /upload) -->
+    <iframe src="tempGraph.html" name="graphFrame"></iframe>
+
+    <!-- Right column: topic table (placeholder until /publish) -->
+    <iframe src="temp.html"      name="tableFrame"></iframe>
+</div>
 </body>
 </html>

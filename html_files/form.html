@@ -1,10 +1,86 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Title</title>
+    <meta charset="UTF-8" />
+    <title>Control Panel</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            max-width: 280px;
+            border: 1px solid black;
+            padding: 15px;
+            border-radius: 8px;
+            background-color: #f9f9f9;
+        }
+        h3 {
+            margin: 0 0 15px;
+            color: #333;
+            padding-bottom: 5px;
+            border-bottom: 2px solid #ddd;
+        }
+        form {
+            margin-bottom: 30px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            font-weight: bold;
+            display: block;
+            margin-bottom: 5px;
+            color: #555;
+        }
+        input[type="text"], input[type="file"] {
+            width: 100%;
+            box-sizing: border-box;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            margin-top: 4px;
+        }
+        button {
+            padding: 8px 16px;
+            background-color: #4c75af;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        button:hover {
+            background-color: #3a5a87;
+        }
+        .divider {
+            height: 1px;
+            background-color: black;
+            margin: 20px 0;
+        }
+    </style>
 </head>
 <body>
+<h3>Deploy Configuration</h3>
+<form method="POST" action="http://localhost:8080/upload" target="graphFrame" enctype="multipart/form-data">
+    <div class="form-group">
+        <label for="configFile">Configuration file:</label>
+        <input type="file" id="configFile" name="file" required />
+    </div>
+    <button type="submit">Deploy</button>
+</form>
 
+<div class="divider"></div>
+
+<h3>Publish Message</h3>
+<form method="GET" action="http://localhost:8080/publish" target="tableFrame">
+    <div class="form-group">
+        <label for="topicField">Topic:</label>
+        <input type="text" id="topicField" name="topic" required />
+    </div>
+    <div class="form-group">
+        <label for="messageField">Message:</label>
+        <input type="text" id="messageField" name="message" required />
+    </div>
+    <button type="submit">Publish</button>
+</form>
 </body>
 </html>
