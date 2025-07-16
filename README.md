@@ -10,7 +10,7 @@
 - Alex Makarov
 
 ## Overview
-This project implements a computational graph framework with a web-based visualization interface. The system allows users to define, load, and visualize computational graphs through a web interface. A computational graph consists of agents that process messages and topics that facilitate communication between agents. The project demonstrates advanced Java programming concepts including asynchronous communication, parallelism, design patterns, and web server implementation.
+This project implements a computational graph framework with a web-based visualization interface. The system allows users to define, load, and visualize computational graphs through a web interface. A computational graph consists of agents that process messages and topics that facilitate communication between agents.
 
 ## Key Components and Terminology
 
