@@ -1,15 +1,35 @@
 package servlets;
 
-import server.RequestParser;
-import views.HtmlGraphWriter;
 import configs.Graph;
-
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.List;
+import server.RequestParser;
+import views.HtmlGraphWriter;
 
+/**
+ * GraphRefresher servlet generates and returns the current graph visualization.
+ * Accepts GET requests to refresh and display the current state of the graph
+ * based on existing topics and their connections.
+ * 
+ * <p>Example usage:
+ * <pre>{@code
+ * // Register the graph refresher
+ * server.addServlet("GET", "/refresh", new GraphRefresher());
+ * 
+ * // Client can now refresh the graph:
+ * // GET /refresh -> returns HTML with current graph visualization
+ * }</pre>
+ */
 public class GraphRefresher implements Servlet {
     
+    /**
+     * Handles graph refresh requests by generating current graph visualization.
+     * 
+     * @param ri the parsed request information
+     * @param toClient the output stream to write the HTTP response to
+     * @throws IOException if an I/O error occurs while processing the request
+     */
     @Override
     public void handle(RequestParser.RequestInfo ri, OutputStream toClient) throws IOException {
         try {

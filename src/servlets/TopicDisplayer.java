@@ -1,19 +1,34 @@
 package servlets;
 
-import server.RequestParser;
-import graph.TopicManagerSingleton;
-import graph.Topic;
 import graph.Message;
-
+import graph.Topic;
+import graph.TopicManagerSingleton;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Map;
+import server.RequestParser;
 
+/**
+ * TopicDisplayer servlet handles message publishing to topics and displays results.
+ * Accepts GET requests with topic and message parameters to publish messages to graph topics.
+ * 
+ * <p>Example usage:
+ * <pre>{@code
+ * // Register the topic displayer
+ * server.addServlet("GET", "/topic", new TopicDisplayer());
+ * 
+ * // Client can now send messages to topics:
+ * // GET /topic?topic=math&message=5
+ * // GET /topic?topic=fibonacci&message=start
+ * }</pre>
+ */
 public class TopicDisplayer implements Servlet {
     /**
-     * @param ri
-     * @param toClient
-     * @throws IOException
+     * Handles message publishing to topics and returns the results.
+     * 
+     * @param ri the parsed request information containing topic and message parameters
+     * @param toClient the output stream to write the HTTP response to
+     * @throws IOException if an I/O error occurs while processing the request
      */
     @Override
     public void handle(RequestParser.RequestInfo ri, OutputStream toClient) throws IOException {

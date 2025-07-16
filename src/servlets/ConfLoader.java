@@ -12,13 +12,44 @@ import server.RequestParser;
 import views.HtmlGraphWriter;
 
 /**
- *
+ * ConfLoader servlet handles configuration file uploads and processing.
+ * Accepts configuration files via POST requests, validates them, and initializes
+ * the graph system with the uploaded configuration.
+ * 
+ * <p>Example usage:
+ * <pre>{@code
+ * // Register the configuration loader
+ * HTTPServer server = new MyHTTPServer(8080, 10);
+ * server.addServlet("POST", "/config", new ConfLoader());
+ * 
+ * // Client can now POST configuration files:
+ * // POST /config
+ * // Content-Type: multipart/form-data
+ * // Body: [configuration file content]
+ * }</pre>
+ * 
+ * <p>The servlet will:
+ * <ul>
+ * <li>Save the uploaded file to the "uploaded_configs" directory</li>
+ * <li>Clear any existing configuration and topics</li>
+ * <li>Parse and validate the new configuration</li>
+ * <li>Initialize the graph system with the new configuration</li>
+ * <li>Generate an HTML response showing the loaded graph</li>
+ * </ul>
  */
 public class ConfLoader implements Servlet {
     
     // Keep track of the current configuration to clean it up
     private static GenericConfig currentConfig = null;
     
+    /**
+     * Handles configuration file upload and processing.
+     * Expects a POST request with configuration file content in the request body.
+     * 
+     * @param ri the parsed request information containing the uploaded file
+     * @param toClient the output stream to write the HTTP response to
+     * @throws IOException if an I/O error occurs while processing the request
+     */
     @Override
     public void handle(RequestParser.RequestInfo ri, OutputStream toClient) throws IOException {
         try {

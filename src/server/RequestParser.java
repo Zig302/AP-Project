@@ -2,12 +2,24 @@ package server;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.util.Map;
-import java.util.HashMap;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
- * The RequestParser class provides methods to parse HTTP requests.
+ * RequestParser provides utility methods for parsing HTTP requests.
+ * Handles parsing of request lines, headers, query parameters, and request bodies.
+ * 
+ * <p>Example usage:
+ * <pre>{@code
+ * BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+ * RequestInfo info = RequestParser.parseRequest(reader);
+ * 
+ * String method = info.getHttpCommand();  // "GET", "POST", etc.
+ * String uri = info.getUri();             // "/api/users"
+ * Map<String, String> params = info.getParameters();  // Query parameters
+ * byte[] body = info.getContent();        // Request body content
+ * }</pre>
  */
 public class RequestParser {
 

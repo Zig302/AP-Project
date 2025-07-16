@@ -1,17 +1,37 @@
 package servlets;
 
-import server.RequestParser;
-
+import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import server.RequestParser;
 
+/**
+ * HtmlLoader servlet serves static HTML files from a specified root directory.
+ * Handles security by preventing directory traversal attacks.
+ * 
+ * <p>Example usage:
+ * <pre>{@code
+ * // Serve HTML files from the "html_files" directory
+ * HTTPServer server = new MyHTTPServer(8080, 10);
+ * server.addServlet("GET", "/app/", new HtmlLoader("html_files"));
+ * 
+ * // Now clients can access:
+ * // GET /app/index.html -> serves html_files/index.html
+ * // GET /app/about.html -> serves html_files/about.html
+ * // GET /app/ -> serves html_files/index.html (default)
+ * }</pre>
+ */
 public class HtmlLoader implements Servlet {
     private final String root;
 
+    /**
+     * Creates a new HtmlLoader servlet.
+     * 
+     * @param root the root directory path containing HTML files to serve
+     */
     public HtmlLoader(String root) {
         this.root = root;
     }

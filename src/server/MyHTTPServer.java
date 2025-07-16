@@ -1,8 +1,5 @@
 package server;
 
-import servlets.Servlet;
-import server.RequestParser.RequestInfo;
-
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -11,12 +8,39 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import server.RequestParser.RequestInfo;
+import servlets.Servlet;
 
-/* * MyHTTPServer is a simple HTTP server implementation that handles HTTP requests
+/**
+ * MyHTTPServer is a multi-threaded HTTP server implementation that handles HTTP requests
  * and serves responses based on registered servlets.
- * It implements the HTTPServer interface and runs in a separate thread.
+ * 
+ * <p>The server supports GET, POST, and DELETE HTTP methods and uses a thread pool
+ * to handle concurrent requests. Servlets are registered for specific URI patterns
+ * and HTTP methods.
+ * 
+ * <p>Example usage:
+ * <pre>{@code
+ * // Create server on port 8080 with 10 worker threads
+ * MyHTTPServer server = new MyHTTPServer(8080, 10);
+ * 
+ * // Register servlets for different endpoints
+ * server.addServlet("GET", "/api/users", new UserListServlet());
+ * server.addServlet("POST", "/api/users", new UserCreateServlet());
+ * server.addServlet("GET", "/app/", new HtmlLoader("html_files"));
+ * 
+ * // Start the server
+ * server.start();
+ * 
+ * // Server runs in background, handling requests...
+ * 
+ * // Shutdown the server
+ * server.close();
+ * }</pre>
+ * 
+ * <p>URI matching uses longest prefix matching. For example, if both "/api" and "/api/users"
+ * are registered, a request to "/api/users/123" will match "/api/users".
  */
-
 public class MyHTTPServer extends Thread implements HTTPServer{
     private int port;
     private int nThreads;
@@ -29,9 +53,11 @@ public class MyHTTPServer extends Thread implements HTTPServer{
 
 
     /**
-     * Constructor for MyHTTPServer.
-     * @param port the port on which the server will listen for incoming HTTP requests
-     * @param nThreads number of threads in the thread pool to handle requests
+     * Creates a new HTTP server instance.
+     * 
+     * @param port the port number on which the server will listen for incoming HTTP requests (1-65535)
+     * @param nThreads the number of threads in the thread pool to handle concurrent requests
+     * @throws IllegalArgumentException if port is not in valid range or nThreads is not positive
      */
     public MyHTTPServer(int port,int nThreads){
         this.port = port;
@@ -40,12 +66,22 @@ public class MyHTTPServer extends Thread implements HTTPServer{
     }
 
     /**
-     * Starts the HTTP server by binding to the specified port and listening for incoming requests
-     *
-     * @param httpCommand the HTTP command (e.g., "GET", "POST", "DELETE") to register the servlet for
-     * @param uri the URI path for which the servlet should handle requests
-     * @param s the servlet instance that will handle requests for the specified HTTP command and URI
+     * Registers a servlet to handle requests for a specific HTTP method and URI pattern.
+     * Uses longest prefix matching for URI resolution.
+     * 
+     * <p>Example:
+     * <pre>{@code
+     * server.addServlet("GET", "/api/users", new UserListServlet());
+     * server.addServlet("POST", "/api/users", new UserCreateServlet());
+     * server.addServlet("GET", "/app/", new HtmlLoader("html_files"));
+     * }</pre>
+     * 
+     * @param httpCommand the HTTP method (GET, POST, DELETE) - case insensitive
+     * @param uri the URI pattern to match (e.g., "/api/users", "/app/")
+     * @param s the servlet instance to handle matching requests
+     * @throws IllegalArgumentException if httpCommand is unsupported or any parameter is null
      */
+    @Override
     public void addServlet(String httpCommand, String uri, Servlet s){
         if (httpCommand == null || uri == null || s == null) {
             throw new IllegalArgumentException("HTTP command, URI, and servlet cannot be null");
@@ -66,11 +102,13 @@ public class MyHTTPServer extends Thread implements HTTPServer{
     }
 
     /**
-     * Starts the server and begins listening for incoming HTTP requests
-     *
-     * @param httpCommand the HTTP command (e.g., "GET", "POST", "DELETE") to register the servlet for
-     * @param uri the URI path for which the servlet should handle requests
+     * Removes a servlet registration for a specific HTTP method and URI pattern.
+     * 
+     * @param httpCommand the HTTP method (GET, POST, DELETE) - case insensitive
+     * @param uri the URI pattern to remove
+     * @throws IllegalArgumentException if httpCommand is unsupported or any parameter is null
      */
+    @Override
     public void removeServlet(String httpCommand, String uri){
         if (httpCommand == null || uri == null) {
             throw new IllegalArgumentException("HTTP command and URI cannot be null");
@@ -92,8 +130,9 @@ public class MyHTTPServer extends Thread implements HTTPServer{
 
 
     /**
-     * Handles incoming client requests by parsing the request and invoking the appropriate servlet
-     *
+     * Processes an incoming client request by parsing it and dispatching to the appropriate servlet.
+     * Uses longest prefix matching to find the best servlet for the request URI.
+     * 
      * @param clientSocket the socket connected to the client
      */
     private void serveClient(Socket clientSocket) {
@@ -158,9 +197,10 @@ public class MyHTTPServer extends Thread implements HTTPServer{
 
 
     /**
-     * The run method is the entry point for the thread
-     * It will handle incoming HTTP requests in a loop until the server is stopped
+     * Main server loop that accepts and processes client connections.
+     * Runs in a separate thread and handles requests until the server is stopped.
      */
+    @Override
     public void run(){
         try {
             serverSocket = new ServerSocket(port);
@@ -191,8 +231,8 @@ public class MyHTTPServer extends Thread implements HTTPServer{
     }
 
     /**
-     * Starts the server and begins listening for incoming HTTP requests
-     * This method should be called to initiate the server's operation
+     * Starts the HTTP server in a new thread.
+     * The server will begin listening for incoming connections on the configured port.
      */
     @Override
     public void start(){
@@ -201,8 +241,10 @@ public class MyHTTPServer extends Thread implements HTTPServer{
     }
 
     /**
-     * shuts down the thread pool and server
+     * Gracefully shuts down the HTTP server.
+     * Stops accepting new connections, shuts down the thread pool, and closes all servlets.
      */
+    @Override
     public void close(){
         stopped = true;
         threadPool.shutdown(); // Wait for all tasks to finish

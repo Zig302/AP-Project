@@ -1,14 +1,35 @@
 package servlets;
 
-import server.RequestParser;
 import graph.TopicManagerSingleton;
-
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Map;
+import server.RequestParser;
 
+/**
+ * TopicValidator servlet validates topic existence and message format.
+ * Accepts GET requests with topic and message parameters to validate if a topic exists
+ * and if the message is valid for that topic.
+ * 
+ * <p>Example usage:
+ * <pre>{@code
+ * // Register the topic validator
+ * server.addServlet("GET", "/validate", new TopicValidator());
+ * 
+ * // Client can now validate topics and messages:
+ * // GET /validate?topic=math&message=5
+ * // GET /validate?topic=nonexistent&message=test
+ * }</pre>
+ */
 public class TopicValidator implements Servlet {
     
+    /**
+     * Handles topic and message validation requests.
+     * 
+     * @param ri the parsed request information containing topic and message parameters
+     * @param toClient the output stream to write the HTTP response to
+     * @throws IOException if an I/O error occurs while processing the request
+     */
     @Override
     public void handle(RequestParser.RequestInfo ri, OutputStream toClient) throws IOException {
         Map<String, String> params = ri.getParameters();
