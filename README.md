@@ -146,7 +146,7 @@ The repository includes several sample configuration files in the `config_files`
 - `graphTest.conf`: A more complex graph for testing
 
 ## Project Demo
-<video src="demo.mp4" width="1028" controls autoplay loop>
+<video src="demo.mp4" width="1028" controls>
   Your browser doesn’t support the video tag.
 </video>
 
