@@ -146,7 +146,9 @@ The repository includes several sample configuration files in the `config_files`
 - `graphTest.conf`: A more complex graph for testing
 
 ## Project Demo
-[Watch the Demo Video](https://www.youtube.com/link_to_your_demo_video)
+<video src="demo.mp4" width="1028" controls autoplay loop>
+  Your browser doesn’t support the video tag.
+</video>
 
 ## License
 This project is for academic purposes as part of the Advanced Programming course.
