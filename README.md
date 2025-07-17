@@ -146,7 +146,7 @@ The repository includes several sample configuration files in the `config_files`
 - `graphTest.conf`: A more complex graph for testing
 
 ## Project Demo
-<iframe width="560" height="315" src="https://www.youtube.com/embed/T5EjdtWYn24?si=R8PFR5d7Ba9xgd_z" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+https://youtu.be/T5EjdtWYn24
 
 ## License
 This project is for academic purposes as part of the Advanced Programming course.
